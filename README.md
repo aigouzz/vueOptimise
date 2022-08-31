@@ -6,8 +6,17 @@ This template should help get you started developing with Vue 3 in Vite. The tem
 
 - [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
 
-## some notes about vuejs
+## Some notes about vuejs 
 
 - Practice about vue and tell how to build a vue project
 - Vue.js analysis and vuex imitation 
 - Show how vue router works
+
+## Find out the working route about vue project
+
+- init 
+- lifecycle
+- render
+- vnode
+- filter
+- directives
