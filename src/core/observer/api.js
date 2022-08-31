@@ -1,0 +1,15 @@
+function isObject(obj) {
+    return obj !== null && typeof obj == 'object';
+}
+
+const hasProto = '__proto__' in {}; 
+
+function protoAugment(target, src, keys) {
+    target.__proto__ = src;
+}
+
+function copyAugment(target, src, keys = []) {
+    for(let i=0;i<keys.length;i++) {
+        defs(target, keys[i], src[keys[i]]);
+    }
+}
