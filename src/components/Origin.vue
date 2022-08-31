@@ -102,6 +102,7 @@
             pushTarget(this);
             const vm = this.vm;
             let value = this.getter.call(vm, vm);
+            popTarget();
             return value;
         }
         update() {
@@ -110,6 +111,21 @@
             this.cb.call(this.vm, this.value, oldValue);
         }
     }
+
+    /**
+     * array watch
+     */
+    let arrProto = Array.prototype;
+    let arrMethods = Object.create(arrProto);
+    let methodsToPatch = [
+        'push',
+        'pop',
+        'unshift',
+        'shift',
+        'sort',
+        'splice',
+        'reverse'
+    ];
 
     let car = new myObserver({
         name: 'gg',

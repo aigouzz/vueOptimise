@@ -8,4 +8,6 @@ This template should help get you started developing with Vue 3 in Vite. The tem
 
 ## some notes about vuejs
 
-- practice about vue and tell how to build a vue project
+- Practice about vue and tell how to build a vue project
+- Vue.js analysis and vuex imitation 
+- Show how vue router works
