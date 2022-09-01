@@ -1,6 +1,6 @@
 const arrProto = Array.prototype;
-const arrMethods = Object.create(arrProto);
-const methodsToPatch = [
+export const arrMethods = Object.create(arrProto);
+export const methodsToPatch = [
     'push',
     'pop',
     'unshift',
@@ -9,7 +9,7 @@ const methodsToPatch = [
     'splice',
     'reverse'
 ];
-const arrKeys = Object.getOwnPropertyNames(arrMethods);
+export const arrKeys = Object.getOwnPropertyNames(arrMethods);
 
 methodsToPatch.forEach((method, index) => {
     const original = arrProto[method];
@@ -19,6 +19,22 @@ methodsToPatch.forEach((method, index) => {
         writable: true,
         value(...args) {
             let val = original.apply(this, args);
+            let ob = this.__ob__;
+            let inserted;
+            switch(method) {
+                case 'push':
+                case 'unshift':
+                    inserted = args;
+                    break;
+                case 'splice':
+                    inserted = args.slice(2);
+                    break;
+            }
+            if(inserted) {
+                ob.observeArray(inserted);
+            }
+            console.log(method, 'arr 变化');
+            ob.dep.notify();
             return val;
         }
     });

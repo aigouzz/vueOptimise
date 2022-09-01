@@ -1,6 +1,6 @@
-import './api';
-import './array'; 
-import './VNode';
+import {hasOwn, hasProto, isObject, protoAugment, copyAugment} from './api';
+import {arrMethods, arrKeys, methodsToPatch} from './array'; 
+import {VNode} from './VNode';
 
 class myObserver{
     constructor(value) {
@@ -10,6 +10,7 @@ class myObserver{
         if(Array.isArray(value)) {
             const augment = hasProto ? protoAugment : copyAugment;
             augment(value, arrMethods, arrKeys);
+            this.observeArray(value);
         } else {
             this.walk(value);
         }
@@ -18,6 +19,11 @@ class myObserver{
         const keys = Object.keys(obj);
         for(let i in keys) {
             defineReactive(obj, keys[i]);
+        }
+    }
+    observeArray(arr) {
+        for(let i =0;i<arr.length;i++) {
+            observe(arr[i]);
         }
     }
 }
@@ -32,10 +38,10 @@ function observe(value, asRootData) {
         return;
     }
     let ob;
-    if(hasOwn(value, '__ob__') && value.__ob__ instanceof Observer) {
+    if(hasOwn(value, '__ob__') && value.__ob__ instanceof myObserver) {
         ob = value.__ob__;
     } else {
-        ob = new Observer(value);
+        ob = new myObserver(value);
     }
     return ob;
 }
@@ -67,12 +73,16 @@ function defineReactive(obj, key, val) {
         new myObserver(val);
     }
     const dep = new Dep();
+    let childOb = observe(val);
     Object.defineProperty(obj, key, {
         enumerable: true,
         configurable: true,
         get() {
             console.log(`获取${obj}的${key}`);
             dep.depend();
+            if(childOb) {
+                childOb.dep.depend();
+            }
             return val;
         },
         set(newVal) { 
@@ -147,7 +157,12 @@ let car = new myObserver({
     name: 'gg',
     age: 11
 });
+let arr = new myObserver(['1', 'name']);
 console.log(car.value.name, car.value.age);
+arr.value.push(1);
+arr.value[1];
+console.log(Dep.target)
+
 car.value.age = 22;
 
 export default myObserver;
