@@ -1,3 +1,11 @@
+/**
+ * patch:
+ * 新的vnode中有，旧的vnode中没有，就在旧的vnode中添加
+ * 新的vnode中没有，旧的vnode中有，就在旧的vnode中删除
+ * 都有，就以新的vnode为主，更新
+ */
+import { isDef, nodeOps, insert } from "./api";
+
 export class VNode{
     constructor(
         tag = '',data, children=[], text='', elm, context, componentOptions, asyncFactory
@@ -60,4 +68,24 @@ export function cloneVNode(vnode) {
     cloned.asyncMeta = vnode.asyncMeta;
     cloned.isCloned = true;
     return cloned;
+}
+
+
+//vnode/patch.js
+export function createElm(vnode, parentElm, refElm) {
+    const data = vnode.data;
+    const children = vnode.children;
+    const tag = vnode.tag;
+    if(isDef(tag)) {
+        vnode.elm = nodeOpts.createElement(tag, vnode);
+        createChildren(vnode, children, insertedVnodeQueue);
+        insert(parentElm, vnode.elm, refElm);
+    } else if(vnode.isComment) {
+        vnode.elm = nodeOps.createComment(vnode.text);
+        insert(parentElm, vnode.elm, refElm);
+    } else {
+        vnode.elm = nodeOps.createTextNode(vnode.text);
+        insert(parentElm, vnode.elm, refElm);
+    }
+    
 }
