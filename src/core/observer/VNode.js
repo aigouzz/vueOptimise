@@ -129,11 +129,42 @@ export function patchVnode(oldVnode, vnode, insertedVnodeQueue, ownerArray, inde
             if(isDef(oldVnode.text)) nodeOps.setTextContent(elm, '');
             addVnodes(elm, null, ch, 0, ch.length - 1, insertedVnodeQueue);
         } else if(isDef(oldCh)) {
-            removeVnodes(elm, oldCh, 0, oldCh.length - 1);
+            removeVnodes(elm, 0, oldCh.length - 1);
         } else if(isDef(oldVnode.text)) {
             nodeOps.setTextContent(elm, '');
         }
     } else if(oldVnode.text !== vnode.text) {
         nodeOps.setTextContent(elm, vnode.text);
     }
+}
+
+function addVnodes(parentElm, refElm, vnodes, startIdx, endIdx, insertedVnodeQueue) {
+    for(;startIdx<=endIdx; ++startIdx) {
+        createElm(vnodes[startIdx], insertedVnodeQueue, parentElm, refElm, false, vnodes, startIdx);
+    }
+}
+
+function removeVnodes(vnodes, startIdx, endIdx) {
+    for(;startIdx<=endIdx;++startIdx) {
+        let ch = vnodes[startIdx];
+        if(isDef(ch)) {
+            if(isDef(ch.tag)) {
+
+            } else {
+                removeNode(ch.elm);
+            }
+        }
+    }
+}
+
+/**
+ * 更新子节点
+ * @param {object} parentElm 
+ * @param {array} oldCh 
+ * @param {array} newCh 
+ * @param {array} insertedVnodeQueue 
+ * @param {boolean} removeOnly 
+ */
+function updateChildren(parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly) {
+
 }
