@@ -4,7 +4,7 @@
  * 新的vnode中没有，旧的vnode中有，就在旧的vnode中删除
  * 都有，就以新的vnode为主，更新
  */
-import { isDef, nodeOps, insert, isUnDef } from "./api";
+import { isDef, nodeOps, insert, isUnDef, checkDuplicateKeys, sameVnode } from "./api";
 
 export class VNode{
     constructor(
@@ -159,6 +159,19 @@ function removeVnodes(vnodes, startIdx, endIdx) {
 
 /**
  * 更新子节点
+ * 1：创建子节点
+ *  若newch中某个子节点在oldch中找不到与之相同的子节点，说明newch中这个子节点之前没有
+ * 需要此次新增节点，创建子节点
+ * 2：删除子节点
+ *  若newch中每个子节点都循环之后，而oldch中还有未处理的子节点，说明oldch中这些未处理子节点
+ * 需要被废弃，那么就删除这些未处理的子节点
+ * 3：移动子节点
+ *  若newch中某个子节点在oldch中找到与之相同的子节点，但是位置不同，说明此次变化需要调整
+ * 该子节点的位置，就以newch中子节点位置为基准，调整oldch中该节点位置，使之与newch中
+ * 位置相同
+ * 4：更新节点
+ *  若newch中某个子节点在oldch中找到与之相同子节点，且位置也相同，则更新oldch中该节点
+ * 使之与newch里的该节点相同
  * @param {object} parentElm 
  * @param {array} oldCh 
  * @param {array} newCh 
@@ -166,5 +179,24 @@ function removeVnodes(vnodes, startIdx, endIdx) {
  * @param {boolean} removeOnly 
  */
 function updateChildren(parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly) {
+    let oldStartIdx = 0;
+    let newStartIdx = 0;
+    let oldEndIdx = oldCh.length - 1;
+    let oldStartVnode = oldCh[0];
+    let oldEndVnode = oldCh[oldEndIdx];
+    let newEndIdx = newCh.length - 1;
+    let newStartVnode = newCh[0];
+    let newEndVnode = newCh[newEndIdx];
+    let oldKeyToIdx,idxInOld,vnodeToMove,refElm;
 
+    let canMove = !removeOnly;
+    checkDuplicateKeys(newCh);
+
+    while(oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
+        if(isUnDef(oldStartVnode)) {
+            oldStartVnode = oldCh[++oldStartIdx];
+        } else if(isUnDef(oldEndVnode)) {
+            oldEndVnode = oldCh[--oldEndIdx];
+        } else if(sameVnode(oldStartVnode, newStartVnode)) {}
+    }
 }

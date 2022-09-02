@@ -124,7 +124,7 @@ export function insert(parent, elm, ref) {
     }
 }
 
-function checkDuplicateKeys(children) {
+export function checkDuplicateKeys(children) {
     let seenKeys = {};
     for(let i=0;i<children.length;i++ ) {
         let vnode = children[i];
@@ -147,3 +147,41 @@ export function createChildren(vnode, children, insertedVnodeQueue) {
         createElm(children[i], insertedVnodeQueue, vnode.elm, null, true, children, i);
     }
 }
+
+export function sameVnode(a, b) {
+    return (
+        a.key === b.key && 
+        a.asyncFactory === b.asyncFactory && (
+            (
+                a.tag === b.tag && 
+                a.isComment === b.isComment &&
+                isDef(a.data) === isDef(b.data) &&
+                sameInputType(a, b)
+            ) || (
+                a.isAsyncPlaceholder && 
+                isUndef(b.asyncFactory.error)
+            )
+        )
+    );
+}
+function sameInputType (a, b) {
+    if (a.tag !== 'input') { return true }
+    var i;
+    var typeA = isDef(i = a.data) && isDef(i = i.attrs) && i.type;
+    var typeB = isDef(i = b.data) && isDef(i = i.attrs) && i.type;
+    return typeA === typeB || isTextInputType(typeA) && isTextInputType(typeB)
+  }
+
+  function makeMap (
+    str,
+    expectsLowerCase
+  ) {
+    var map = Object.create(null);
+    var list = str.split(',');
+    for (var i = 0; i < list.length; i++) {
+      map[list[i]] = true;
+    }
+    return expectsLowerCase
+      ? function (val) { return map[val.toLowerCase()]; }
+      : function (val) { return map[val]; }
+  }
