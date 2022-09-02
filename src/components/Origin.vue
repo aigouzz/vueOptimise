@@ -18,5 +18,6 @@
     <p>4.VNode</p>
     <p>5.plugin</p>
     <p>6.directive</p>
+    <p>7.render</p>
 </div>
 </template>
