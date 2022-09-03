@@ -197,6 +197,8 @@ function updateChildren(parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly)
             oldStartVnode = oldCh[++oldStartIdx];
         } else if(isUnDef(oldEndVnode)) {
             oldEndVnode = oldCh[--oldEndIdx];
-        } else if(sameVnode(oldStartVnode, newStartVnode)) {}
+        } else if(sameVnode(oldStartVnode, newStartVnode)) {
+            
+        }
     }
 }
