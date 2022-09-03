@@ -198,6 +198,24 @@ function updateChildren(parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly)
         } else if(isUnDef(oldEndVnode)) {
             oldEndVnode = oldCh[--oldEndIdx];
         } else if(sameVnode(oldStartVnode, newStartVnode)) {
+            patchVnode(oldStartVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx);
+            oldStartVnode = oldCh[++oldStartIdx];
+            newStartVnode = newCh[++newStartIdx];
+        } else if(sameVnode(oldEndVnode, newEndVnode)) {
+            patchVnode(oldEndVnode, newEndVnode, insertedVnodeQueue, newCh, newEndIdx);
+            oldEndVnode = oldCh[--oldEndIdx];
+            newEndVnode = newCh[--newEndIdx];
+        } else if(sameVnode(oldStartVnode, newEndVnode)) {
+            patchVnode(oldStartVnode, newEndVnode, insertedVnodeQueue, newCh, newEndIdx);
+            canMove && nodeOps.insertBefore(parentElm, oldStartVnode.elm, nodeOps.nextSibling(oldEndVnode.elm));
+            oldStartVnode = oldCh[++oldStartIdx];
+            newEndVnode = newCh[--newEndIdx];
+        } else if(sameVnode(oldEndVnode, newStartVnode)) {
+            patchVnode(oldEndVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx);
+            canMove && nodeOps.insertBefore(parentElm, oldEndVnode.elm, nodeOps.nextSibling(oldStartVnode.elm));
+            oldEndVnode = oldCh[--oldEndIdx];
+            newStartVnode = newCh[++newStartIdx];
+        } else {
             
         }
     }

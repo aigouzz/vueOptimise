@@ -172,7 +172,7 @@ function sameInputType (a, b) {
     return typeA === typeB || isTextInputType(typeA) && isTextInputType(typeB)
   }
 
-  function makeMap (
+function makeMap (
     str,
     expectsLowerCase
   ) {
@@ -184,4 +184,4 @@ function sameInputType (a, b) {
     return expectsLowerCase
       ? function (val) { return map[val.toLowerCase()]; }
       : function (val) { return map[val]; }
-  }
+}
