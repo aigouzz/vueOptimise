@@ -4,7 +4,8 @@
  * 新的vnode中没有，旧的vnode中有，就在旧的vnode中删除
  * 都有，就以新的vnode为主，更新
  */
-import { isDef, nodeOps, insert, isUnDef, checkDuplicateKeys, sameVnode, createKeyToOldIdx } from "./api";
+import { isDef, nodeOps, insert, isUnDef, checkDuplicateKeys, sameVnode, 
+    createKeyToOldIdx, findIdxInOld } from "./api";
 
 export class VNode{
     constructor(
@@ -218,6 +219,11 @@ function updateChildren(parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly)
         } else {
             if(isUnDef(oldKeyToIdx)) {
                 oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx);
+            }
+            idxInOld = isDef(newStartVnode.key) ? oldKeyToIdx[newStartVnode.key] : 
+            findIdxInOld(newStartVnode, oldCh, oldStartIdx, oldEndIdx);
+            if(isUnDef(idxInOld)) {
+                createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, false, newCh, newStartIdx);
             }
         }
     }
