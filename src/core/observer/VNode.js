@@ -358,6 +358,36 @@ export function createPatchFunction(backend) {
         return isDef(vnode.tag)
     }
 
+    function invokeCreateHooks(vnode, insertedVnodeQueue) {
+        for(let i$i=0;i$i<cbs.create.length;i$i++) {
+            cbs.create[i$i](emptyNode, vnode);
+        }
+        let i = vnode.data.hook;
+        if(isDef(i)) {
+            if(isDef(i.create)) {
+                i.create(emptyNode, vnode);
+            }
+            if(isDef(i.insert)) {
+                insertedVnodeQueue.push(vnode);
+            }
+        }
+    }
+
+    function setScope(vnode) {
+        let i;
+        if(isDef(i = vnode.fnScopeId)) {
+            nodeOps.setStyleScope(vnode.elm, i);
+        } else {
+            let ancestor = vnode;
+            while(ancestor) {
+                if(isDef(i = ancestor.context) && isDef(i = i.$options._scopeId)) {
+                    nodeOps.setStyleScope(vnode.elm, i);
+                }
+                ancestor = ancestor.parent;
+            }
+        }
+    }
+
     /**
      * 更新子节点
      * 1：创建子节点

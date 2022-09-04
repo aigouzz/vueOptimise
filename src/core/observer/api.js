@@ -32,3 +32,9 @@ export function isUnDef(val) {
     return val === undefined || val === null;
 }
 
+export function isPrimitive(value) {
+    return (
+        typeof value === 'string' || typeof value === 'number' || 
+        typeof value === 'boolean' || typeof value === 'symbol'
+    );
+}
