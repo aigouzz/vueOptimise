@@ -253,24 +253,6 @@ function removeNode(el) {
     }
 }
 
-function addVnodes(parentElm, refElm, vnodes, startIdx, endIdx, insertedVnodeQueue) {
-    for(;startIdx<=endIdx; ++startIdx) {
-        createElm(vnodes[startIdx], insertedVnodeQueue, parentElm, refElm, false, vnodes, startIdx);
-    }
-}
-
-function removeVnodes(vnodes, startIdx, endIdx) {
-    for(;startIdx<=endIdx;++startIdx) {
-        let ch = vnodes[startIdx];
-        if(isDef(ch)) {
-            if(isDef(ch.tag)) {
-
-            } else {
-                removeNode(ch.elm);
-            }
-        }
-    }
-}
 
 export function createPatchFunction(backend) {
     let cbs = {};
@@ -510,7 +492,6 @@ export function createPatchFunction(backend) {
         if(oldStartIdx > oldEndIdx) {
             refElm = isUndef(newCh[newEndIdx + 1]) ? null : newCh[newEndIdx + 1].elm;
             addVnodes(parentElm, refElm, newCh, newStartIdx, newEndIdx, insertedVnodeQueue);
-
         } else if(newStartIdx > newEndIdx) {
             removeVnodes(oldCh, oldStartIdx, oldEndIdx);
         }
@@ -574,6 +555,65 @@ export function createPatchFunction(backend) {
         }
     }
 
+    function addVnodes(parentElm, refElm, vnodes, startIdx, endIdx, insertedVnodeQueue) {
+        for(;startIdx<=endIdx; ++startIdx) {
+            createElm(vnodes[startIdx], insertedVnodeQueue, parentElm, refElm, false, vnodes, startIdx);
+        }
+    }
+    
+    function removeVnodes(vnodes, startIdx, endIdx) {
+        for(;startIdx<=endIdx;++startIdx) {
+            let chnode = vnodes[startIdx];
+            if(isDef(chnode)) {
+                if(isDef(chnode.tag)) {
+                    removeAndInvokeRemoveHook(chnode);
+                    invokeDestroyHook(chnode);
+                } else {
+                    removeNode(chnode.elm);
+                }
+            }
+        }
+    }
+    
+    function removeAndInvokeRemoveHook(vnode, rm) {
+        if(isDef(rm) || isDef(vnode.data)) {
+            let i;
+            let listeners = cbs.remove.length + 1;
+            if(isDef(rm)) {
+                rm.listeners += listeners;
+            } else {
+                rm = createRmCb(vnode.elm, listeners);
+            }
+
+            if(isDef(i = vnode.componentInstance) && isDef(i = i._vnode) && isDef(i.data)) {
+                removeAndInvokeRemoveHook(i, rm);
+            }
+
+            for(i = 0;i < cbs.remove.length;i ++) {
+                cbs.remove[i](vnode, rm);
+            }
+            if(isDef(i = vnode.data.hook) && isDef(i = i.remove)) {
+                i(vnode, rm);
+            } else {
+                rm();
+            }
+        }  else {
+            removeNode(vnode.elm);
+        }
+    }
+
+    function createRmCb (childElm, listeners) {
+        function remove$$1 () {
+          if (--remove$$1.listeners === 0) {
+            removeNode(childElm);
+          }
+        }
+        remove$$1.listeners = listeners;
+        return remove$$1
+    }
+
+    let hydrationBailed = false;
+    let isRenderedModule = makeMap('attrs,class,staticClass,staticStyle,key');
     function hydrate(elm, vnode, insertedVnodeQueue, inVPre) {
         let i;
         let tag = vnode.tag;
@@ -588,6 +628,63 @@ export function createPatchFunction(backend) {
         }
         if(!assertNodeMatch(elm, vnode, inVPre)) {
             return false;
+        }
+
+        if(isDef(data)) {
+            if(isDef(i = data.hook) && isDef(i = i.init)) {
+                i(vnode, true);
+            }
+            if(isDef(i = vnode.componentInstance)) {
+                initComponent(vnode, insertedVnodeQueue);
+                return true;
+            }
+        }
+        if(isDef(tag)) {
+            if(isDef(children)) {
+                if(!elm.hasChildNodes) {
+                    createChildren(vnode, children, insertedVnodeQueue);
+                } else {
+                    if(isDef(i = data) && isDef(i = i.domProps) && isDef(i = i.innerHTML)) {
+                        if(i !== elm.innerHTML) {
+                            if(typeof console && !hydrationBailed) {
+                                hydrationBailed = true;
+                                console.warn('Parent: ', elm);
+                                console.warn('server innerHTML: ', i);
+                                console.warn('client innerHTML: ', elm.innerHTML);
+                            }
+                            return false;
+                        }
+                    } else {
+                        let childrenMatch = true;
+                        let childNode = elm.firstChild;
+                        for(let i$i = 0;i$i < children.length;i$i ++) {
+                            if(!childNode ||!hydrate(childNode, children[i$i], insertedVnodeQueue, inVPre)) {
+                                childrenMatch = false;
+                                break;
+                            }
+                            childNode = childNode.nextSibling;
+                        }
+                        if(!childrenMatch || childNode) {
+                            if(typeof console && !hydrationBailed) {
+                                hydrationBailed = true;
+                                console.warn('Parent: ', elm);
+                                console.warn('Mismatching childNodes vs. VNodes: ', elm.childNodes, children);
+                            }
+                            return false;
+                        }
+                    }
+                }
+            }
+            if(isDef(data)) {
+                let fullInvoke = false;
+                for(let key in data) {
+                    if(!isRenderedModule(key)) {
+                        fullInvoke = true;
+                        invokeCreateHooks(vnode, insertedVnodeQueue);
+                        break;
+                    }
+                }
+            }
         }
     }
 

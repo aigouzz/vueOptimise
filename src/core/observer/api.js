@@ -46,3 +46,9 @@ export function isPrimitive(value) {
 export function isRegExp(val) {
     return typeof val === 'object' && _toString.call(val).indexOf('RegExp') > -1;
 }
+
+let seenObjects = new _Set();
+export function traverse(val) {
+    _traverse(val, seenObjects);
+    seenObjects.clear();
+}
