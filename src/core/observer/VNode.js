@@ -5,7 +5,8 @@
  * 都有，就以新的vnode为主，更新
  */
 i
-import { isDef, isUndef, SSR_ATTR, isRegExp } from "./api";
+
+import { isDef, isUndef, SSR_ATTR, isRegExp, traverse } from "./api";
 
 function makeMap (
     str,
@@ -14,7 +15,7 @@ function makeMap (
     var map = Object.create(null);
     var list = str.split(',');
     for (var i = 0; i < list.length; i++) {
-    map[list[i]] = true;
+        map[list[i]] = true;
     }
     return expectsLowerCase
     ? function (val) { return map[val.toLowerCase()]; }
@@ -182,7 +183,7 @@ function createKeyToOldIdx (children, beginIdx, endIdx) {
     return map
 }
 
-class VNode{
+export class VNode{
     constructor(
         tag = '',data, children=[], text='', elm, context, componentOptions, asyncFactory
     ) {
@@ -683,6 +684,9 @@ export function createPatchFunction(backend) {
                         invokeCreateHooks(vnode, insertedVnodeQueue);
                         break;
                     }
+                }
+                if(!fullInvoke && data['class']) {
+                    traverse(data['class']);
                 }
             }
         }
