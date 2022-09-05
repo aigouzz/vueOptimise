@@ -4,7 +4,8 @@
  * 新的vnode中没有，旧的vnode中有，就在旧的vnode中删除
  * 都有，就以新的vnode为主，更新
  */
-import { isDef, isUnDef } from "./api";
+i
+import { isDef, isUndef, SSR_ATTR, isRegExp } from "./api";
 
 function makeMap (
     str,
@@ -18,6 +19,47 @@ function makeMap (
     return expectsLowerCase
     ? function (val) { return map[val.toLowerCase()]; }
     : function (val) { return map[val]; }
+}
+
+let ref = {
+    create: function create (_, vnode) {
+      registerRef(vnode);
+    },
+    update: function update (oldVnode, vnode) {
+      if (oldVnode.data.ref !== vnode.data.ref) {
+        registerRef(oldVnode, true);
+        registerRef(vnode);
+      }
+    },
+    destroy: function destroy (vnode) {
+      registerRef(vnode, true);
+    }
+  };
+
+function registerRef(vnode, isRemoval) {
+    let key = vnode.data.ref;
+    if(!isDef(key)) return;
+
+    let vm = vnode.context;
+    let ref = vnode.componentInstance || vnode.elm;
+    let refs = ref.$refs;
+    if(isRemoval) {
+        if(Array.isArray(refs[key])) {
+            remove(refs[key], ref);
+        } else if(refs[key] === ref) {
+            refs[key] = undefined;
+        }
+    } else {
+        if(vnode.data.refInFor) {
+            if(!Array.isArray(refs[key])) {
+                refs[key] = [ref];
+            } else if (refs[key].indexOf(ref) < 0) {
+                refs[key].push(ref);
+            }
+        } else {
+            refs[key] = ref;
+        }
+    }
 }
 
 function createElement$1(tagName, vnode) {
@@ -230,8 +272,6 @@ function removeVnodes(vnodes, startIdx, endIdx) {
     }
 }
 
-
-
 export function createPatchFunction(backend) {
     let cbs = {};
     let modules = backend.modules;
@@ -424,9 +464,9 @@ export function createPatchFunction(backend) {
         checkDuplicateKeys(newCh);
 
         while(oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
-            if(isUnDef(oldStartVnode)) {
+            if(isUndef(oldStartVnode)) {
                 oldStartVnode = oldCh[++oldStartIdx];
-            } else if(isUnDef(oldEndVnode)) {
+            } else if(isUndef(oldEndVnode)) {
                 oldEndVnode = oldCh[--oldEndIdx];
             } else if(sameVnode(oldStartVnode, newStartVnode)) {
                 patchVnode(oldStartVnode, newStartVnode, insertedVnodeQueue, newCh, newStartIdx);
@@ -447,17 +487,34 @@ export function createPatchFunction(backend) {
                 oldEndVnode = oldCh[--oldEndIdx];
                 newStartVnode = newCh[++newStartIdx];
             } else {
-                if(isUnDef(oldKeyToIdx)) {
+                if(isUndef(oldKeyToIdx)) {
                     oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx);
                 }
                 idxInOld = isDef(newStartVnode.key) ? oldKeyToIdx[newStartVnode.key] : 
                 findIdxInOld(newStartVnode, oldCh, oldStartIdx, oldEndIdx);
-                if(isUnDef(idxInOld)) {
+                if(isUndef(idxInOld)) {
                     createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, false, newCh, newStartIdx);
+                } else {
+                    vnodeToMove = oldCh[idxInOld];
+                    if(sameVnode(vnodeToMove, newStartVnode)) {
+                        patchVnode(vnodeToMove, newStartVnode, insertedVnodeQueue, newCh, newStartIdx);
+                        oldCh[idxInOld] = undefined;
+                        canMove && nodeOps.insertBefore(parentElm, vnodeToMove.elm, oldStartVnode.elm);
+                    } else {
+                        createElm(newStartVnode, insertedVnodeQueue, parentElm, oldStartVnode.elm, false, newCh, newStartIdx);
+                    }
                 }
+                newStartVnode = newCh[++newStartIdx];
             }
         }
-    }
+        if(oldStartIdx > oldEndIdx) {
+            refElm = isUndef(newCh[newEndIdx + 1]) ? null : newCh[newEndIdx + 1].elm;
+            addVnodes(parentElm, refElm, newCh, newStartIdx, newEndIdx, insertedVnodeQueue);
+
+        } else if(newStartIdx > newEndIdx) {
+            removeVnodes(oldCh, oldStartIdx, oldEndIdx);
+        }
+     }
     /**
      * patch:
      * 如果都是静态节点，则无需对比，直接略过
@@ -483,7 +540,7 @@ export function createPatchFunction(backend) {
         }
         const oldCh = oldVnode.children;
         const ch = vnode.children;
-        if(isUnDef(vnode.text)) {
+        if(isUndef(vnode.text)) {
             if(isDef(oldCh) && isDef(ch)) {
                 if(oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly);
             } else if(isDef(ch)) {
@@ -496,6 +553,110 @@ export function createPatchFunction(backend) {
             }
         } else if(oldVnode.text !== vnode.text) {
             nodeOps.setTextContent(elm, vnode.text);
+        }
+    }
+
+    function invokeDestroyHook(vnode) {
+        let i,j;
+        let data = vnode.data;
+        if(isDef(data)) {
+            if(isDef(i = data.hook) && isDef(i = i.destroy)) {
+                i(vnode);
+            }
+            for(i = 0;i < cbs.destroy.length;i ++) {
+                cbs.destroy[i](vnode);
+            }
+        }
+        if(isDef(i = vnode.children)) {
+            for(j = 0;j < vnode.children.length;j ++) {
+                invokeDestroyHook(vnode.children[j]);
+            }
+        }
+    }
+
+    function hydrate(elm, vnode, insertedVnodeQueue, inVPre) {
+        let i;
+        let tag = vnode.tag;
+        let data = vnode.data;
+        let children = vnode.children;
+        inVPre = inVPre || (data && data.pre);
+        vnode.elm = elm;
+
+        if(vnode.isComment && isDef(vnode.asyncFactory)) {
+            vnode.isAsyncPlaceholder = true;
+            return true;
+        }
+        if(!assertNodeMatch(elm, vnode, inVPre)) {
+            return false;
+        }
+    }
+
+    function assertNodeMatch (node, vnode, inVPre) {
+        if (isDef(vnode.tag)) {
+          return vnode.tag.indexOf('vue-component') === 0 || (
+            !isUnknownElement$$1(vnode, inVPre) &&
+            vnode.tag.toLowerCase() === (node.tagName && node.tagName.toLowerCase())
+          )
+        } else {
+          return node.nodeType === (vnode.isComment ? 8 : 3)
+        }
+    }
+    function isUnknownElement$$1 (vnode, inVPre) {
+        return (
+            !inVPre &&
+            !vnode.ns &&
+            !(
+            config.ignoredElements.length &&
+            config.ignoredElements.some(function (ignore) {
+                return isRegExp(ignore)
+                ? ignore.test(vnode.tag)
+                : ignore === vnode.tag
+            })
+            ) &&
+            config.isUnknownElement(vnode.tag)
+        )
+    }
+
+    return function patch(oldVnode, vnode, hydrating, removeOnly) {
+        if(isUndef(vnode)) {
+            if(isDef(oldVnode)) {
+                invokeDestroyHook(oldVnode);
+                return;
+            }
+        }
+        let isInitialPatch = false;
+        let insertedVnodeQueue = [];
+
+        if(isUndef(oldVnode)) {
+            isInitialPatch = true;
+            createElm(vnode, insertedVnodeQueue);
+        } else {
+            let isRealElement = isDef(oldVnode.nodeType);
+            if(!isRealElement && sameVnode(oldVnode, vnode)) {
+                patchVnode(oldVnode, vnode, insertedVnodeQueue, null, null, removeOnly);
+            } else {
+                if(isRealElement) {
+                    if(oldVnode.nodeType === 1 && oldVnode.hasAttribute(SSR_ATTR)) {
+                        oldVnode.removeAttribute(SSR_ATTR);
+                        hydrating = true;
+                    }
+                }
+                if(hydrating) {
+                    if(hydrate(oldVnode, vnode, insertedVnodeQueue)) {
+                        invokeInsertHook(vnode, insertedVnodeQueue, true);
+                        return oldVnode;
+                    } else {
+                        console.warn(
+                            'The client-side rendered virtual DOM tree is not matching ' +
+                        'server-rendered content. This is likely caused by incorrect ' +
+                        'HTML markup, for example nesting block-level elements inside ' +
+                        '<p>, or missing <tbody>. Bailing hydration and performing ' +
+                        'full client-side render.'
+                        );
+                    }
+                }
+                oldVnode = emptyNodeAt(oldVnode);
+            }
         }
     }
 }
