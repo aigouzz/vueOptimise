@@ -11,10 +11,10 @@
  * 3：代码生成阶段：将ast转换成渲染函数  src/compiler/codegen/index.js
  * 
  */
-import {parse} from './parser/index';
-import {optimize} from './optimizer';
-import {generate} from './codegen/index';
-import {createCompilerCreator} from './create-compiler';
+import { parse } from './parser/index';
+import { optimize } from './optimizer';
+import { generate } from './codegen/index';
+import { createCompilerCreator } from './create-compiler';
 
 export const createCompiler = createCompilerCreator(function(
     template,

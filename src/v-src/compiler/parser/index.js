@@ -82,7 +82,7 @@ export function createASTElement(
 /**
  * Convert HTML string to AST.
  */
- export function parse(template, options) {
+export function parse(template, options) {
     warn = options.warn || baseWarn
   
     platformIsPreTag = options.isPreTag || no
