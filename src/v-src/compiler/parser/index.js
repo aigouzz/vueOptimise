@@ -218,7 +218,7 @@ export function parse(template, options) {
         shouldDecodeNewlinesForHref: options.shouldDecodeNewlinesForHref,
         shouldKeepComment: options.comments,
         outputSourceRange: options.outputSourceRange,
-        start(tag, attrs, unary, start, end) {
+        start(tag, attrs, unary, start, end) { //解析到开始标签调用
           // check namespace.
           // inherit parent ns if there is one
           const ns = (currentParent && currentParent.ns) || 
@@ -310,7 +310,7 @@ export function parse(template, options) {
           }
         },
     
-        end(tag, start, end) {
+        end(tag, start, end) { //解析到结束标签调用
           const element = stack[stack.length - 1]
           // pop stack
           stack.length -= 1
@@ -321,7 +321,7 @@ export function parse(template, options) {
           closeElement(element)
         },
     
-        chars(text, start, end) {
+        chars(text, start, end) { //解析到文本调用
           if (!currentParent) {
             if (__DEV__) {
               if (text === template) {
@@ -398,7 +398,7 @@ export function parse(template, options) {
             }
           }
         },
-        comment(text, start, end) {
+        comment(text, start, end) { //解析到注释调用
           // adding anything as a sibling to the root node is forbidden
           // comments should still be allowed, but ignored
           if (currentParent) {
