@@ -3,6 +3,7 @@
  */
 import he from 'he';
 import { parseHTML } from './html-parser';
+import { parseText } from './text-parser';
 import {parseFilters} from './filter-parser';
 import { genAssignmentCode } from '../directives/model';
 import {extend, cached, no, camelize, hyphenate} from '../../shared/util';
