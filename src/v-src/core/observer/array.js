@@ -1,5 +1,8 @@
+import { TriggerOpTypes } from '../../v3'
+import { def } from '../util/index'
+
 const arrProto = Array.prototype;
-export const arrMethods = Object.create(arrProto);
+export const arrayMethods = Object.create(arrProto);
 export const methodsToPatch = [
     'push',
     'pop',
@@ -9,33 +12,36 @@ export const methodsToPatch = [
     'splice',
     'reverse'
 ];
-export const arrKeys = Object.getOwnPropertyNames(arrMethods);
+export const arrKeys = Object.getOwnPropertyNames(arrayMethods);
 
 methodsToPatch.forEach((method, index) => {
     const original = arrProto[method];
-    Object.defineProperty(arrMethods, method, {
-        enumerable: false, 
-        configurable: true,
-        writable: true,
-        value(...args) {
-            let val = original.apply(this, args);
-            let ob = this.__ob__;
-            let inserted;
-            switch(method) {
-                case 'push':
-                case 'unshift':
-                    inserted = args;
-                    break;
-                case 'splice':
-                    inserted = args.slice(2);
-                    break;
-            }
-            if(inserted) {
-                ob.observeArray(inserted);
-            }
-            console.log(method, 'arr 变化');
-            ob.dep.notify();
-            return val;
+    def(arrayMethods, method, function(...args) {
+        let val = original.apply(this, args);
+        let ob = this.__ob__;
+        let inserted;
+        switch(method) {
+            case 'push':
+            case 'unshift':
+                inserted = args;
+                break;
+            case 'splice':
+                inserted = args.slice(2);
+                break;
         }
+        if(inserted) {
+            ob.observeArray(inserted);
+        }
+        
+        if (__DEV__) {
+            ob.dep.notify({
+                type: TriggerOpTypes.ARRAY_MUTATION,
+                target: this,
+                key: method
+            })
+        } else {
+            ob.dep.notify()
+        }
+        return val;
     });
 });

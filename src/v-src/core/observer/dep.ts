@@ -1,6 +1,6 @@
 import { remove } from '../util/index'
 import config from '../config'
-import { DebuggerOptions, DebuggerEventExtraInfo } from 'v3'
+import { DebuggerOptions, DebuggerEventExtraInfo } from '../../v3'
 
 let uid = 0
 

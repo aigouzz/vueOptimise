@@ -1,5 +1,5 @@
-import { Component } from 'types/component'
-import { PropOptions } from 'types/options'
+import { Component } from '../types/component'
+import { PropOptions } from '../types/options'
 import { popTarget, pushTarget } from '../core/observer/dep'
 import { def, invokeWithErrorHandling, isReserved, warn } from '../core/util'
 import VNode from '../core/vdom/vnode'
