@@ -13,15 +13,15 @@ function Vue(options) {
   this._init(options)
 }
 
-//@ts-expect-error Vue has function type
+// @ts-expect-error Vue has function type
 initMixin(Vue)
-//@ts-expect-error Vue has function type
+// @ts-expect-error Vue has function type
 stateMixin(Vue)
-//@ts-expect-error Vue has function type
+// @ts-expect-error Vue has function type
 eventsMixin(Vue)
-//@ts-expect-error Vue has function type
+// @ts-expect-error Vue has function type
 lifecycleMixin(Vue)
-//@ts-expect-error Vue has function type
+// ***@ts-expect-error Vue has function type
 renderMixin(Vue)
 
 export default Vue as unknown as GlobalAPI

@@ -30,7 +30,7 @@ if (inBrowser) {
         supportsPassive = true
       }
     }) // https://github.com/facebook/flow/issues/285
-    window.addEventListener('test-passive', null as any, opts)
+    window.addEventListener('test-passive', null, opts)
   } catch (e) {}
 }
 

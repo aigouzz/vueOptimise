@@ -3,9 +3,9 @@ import { warn } from './debug'
 import { set } from '../observer/index'
 import { unicodeRegExp } from './lang'
 import { nativeWatch, hasSymbol } from './env'
-import { isArray, isFunction } from 'shared/util'
+import { isArray, isFunction } from '../../shared/util'
 
-import { ASSET_TYPES, LIFECYCLE_HOOKS } from 'shared/constants'
+import { ASSET_TYPES, LIFECYCLE_HOOKS } from '../../shared/constants'
 
 import {
   extend,
@@ -15,9 +15,9 @@ import {
   capitalize,
   isBuiltInTag,
   isPlainObject
-} from 'shared/util'
-import type { Component } from 'types/component'
-import type { ComponentOptions } from 'types/options'
+} from '../../shared/util'
+import type { Component } from '../../types/component'
+import type { ComponentOptions } from '../../types/options'
 
 /**
  * Option overwriting strategies are functions that handle
