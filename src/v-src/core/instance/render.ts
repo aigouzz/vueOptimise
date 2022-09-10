@@ -14,9 +14,9 @@ import {
   import VNode, { createEmptyVNode } from '../vdom/vnode'
   
   import { isUpdatingChildComponent } from './lifecycle'
-  import type { Component } from 'types/component'
-  import { setCurrentInstance } from 'v3/currentInstance'
-  import { syncSetupSlots } from 'v3/apiSetup'
+  import type { Component } from '../../types/component'
+  import { setCurrentInstance } from '../../v3/currentInstance'
+  import { syncSetupSlots } from '../../v3/apiSetup'
   
   export function initRender(vm: Component) {
     vm._vnode = null // the root of the child tree
@@ -40,7 +40,7 @@ import {
     vm._c = (a, b, c, d) => createElement(vm, a, b, c, d, false)
     // normalization is always applied for the public version, used in
     // user-written render functions.
-    // *@ts-expect-error
+    // @ts-expect-error
     vm.$createElement = (a, b, c, d) => createElement(vm, a, b, c, d, true)
   
     // $attrs & $listeners are exposed for easier HOC creation.

@@ -21,7 +21,7 @@ stateMixin(Vue)
 eventsMixin(Vue)
 // @ts-expect-error Vue has function type
 lifecycleMixin(Vue)
-// ***@ts-expect-error Vue has function type
+// @ts-expect-error Vue has function type
 renderMixin(Vue)
 
 export default Vue as unknown as GlobalAPI

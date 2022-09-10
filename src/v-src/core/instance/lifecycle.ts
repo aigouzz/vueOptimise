@@ -150,7 +150,7 @@ export function mountComponent(
 ): Component {
   vm.$el = el
   if (!vm.$options.render) {
-    // *@ts-expect-error invalid type
+    // @ts-expect-error invalid type
     vm.$options.render = createEmptyVNode
     if (__DEV__) {
       /* istanbul ignore if */

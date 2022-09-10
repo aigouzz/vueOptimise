@@ -89,3 +89,9 @@ if(typeof Set && isNative(Set)) {
 }
 
 export {_Set};
+
+export interface SimpleSet {
+  has(key: string | number): boolean
+  add(key: string | number): any
+  clear(): void
+}

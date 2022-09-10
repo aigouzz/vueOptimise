@@ -402,7 +402,7 @@ export function mergeOptions(
   }
 
   if (isFunction(child)) {
-    // @ts-expect-error
+    /**  *@ts-expect-error */ 
     child = child.options
   }
 
