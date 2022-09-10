@@ -17,7 +17,7 @@ import {
   
   import type { SimpleSet } from '../util/index'
   import type { Component } from '../../types/component'
-  import { activeEffectScope, recordEffectScope } from 'v3/reactivity/effectScope'
+  import { activeEffectScope, recordEffectScope } from '../../v3/reactivity/effectScope'
   
   let uid = 0
   

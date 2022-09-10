@@ -11,12 +11,12 @@ import {
   isReservedAttr,
   getTagNamespace,
   isUnknownElement
-} from 'web/util/index'
+} from '../util/index'
 
 import { patch } from './patch'
 import platformDirectives from './directives/index'
 import platformComponents from './components/index'
-import type { Component } from 'types/component'
+import type { Component } from '../../../types/component'
 
 // install platform specific utils
 Vue.config.mustUseProp = mustUseProp

@@ -1,5 +1,5 @@
 <script >
-    import index from '../core/observer/index';
+    // import index from '../core/observer/index';
     export default{
         data() {
             return {

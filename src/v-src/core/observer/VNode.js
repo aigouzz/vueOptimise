@@ -6,6 +6,36 @@
  */
 import { isDef, isUndef, SSR_ATTR, isRegExp, traverse } from "./api";
 
+export class VNode{
+    constructor(
+        tag = '',data, children=[], text='', elm, context, componentOptions, asyncFactory
+    ) {
+        this.tag = tag; //当前节点标签名
+        this.data = data;//节点对应对象，包含一些数据信息，VNodeData类型
+        this.children = children;//节点子节点，数组
+        this.text = text;//节点文本
+        this.elm = elm;//节点对应的真是dom节点
+        this.ns = undefined;//节点名字空间
+        this.context = context;//组件节点对应的vue实例
+        this.fnContext = undefined;//函数式组件对应的vue实例
+        this.fnOptions = undefined;//函数式组件对应实例的options对象
+        this.fnScopeId = undefined;//函数式组件对应vue实例的scopeid
+        this.key = data && data.key;//节点key属性，节点标志，用以优化
+        this.componentOptions = componentOptions;//组件options选项
+        this.componentInstance = undefined;//对应vue组件的实例
+        this.parent = undefined;//节点的父节点
+        this.raw = false;//是原生html还是普通文本，innerHTML的时候是true，textContent是false
+        this.isStatic = false; //是否静态结点
+        this.isRootInsert = false;//是否根节点插入
+        this.isComment = false; // 是否注释结点 
+        this.isCloned = false;// 是否克隆结点
+        this.isOnce = false; //是否有v-once指令
+        this.asyncFactory = asyncFactory;
+        this.asyncMeta = undefined;
+        this.isAsyncFolder = false;
+    }
+}
+
 function makeMap (
     str,
     expectsLowerCase
@@ -181,35 +211,7 @@ function createKeyToOldIdx (children, beginIdx, endIdx) {
     return map
 }
 
-export class VNode{
-    constructor(
-        tag = '',data, children=[], text='', elm, context, componentOptions, asyncFactory
-    ) {
-        this.tag = tag; //当前节点标签名
-        this.data = data;//节点对应对象，包含一些数据信息，VNodeData类型
-        this.children = children;//节点子节点，数组
-        this.text = text;//节点文本
-        this.elm = elm;//节点对应的真是dom节点
-        this.ns = undefined;//节点名字空间
-        this.context = context;//组件节点对应的vue实例
-        this.fnContext = undefined;//函数式组件对应的vue实例
-        this.fnOptions = undefined;//函数式组件对应实例的options对象
-        this.fnScopeId = undefined;//函数式组件对应vue实例的scopeid
-        this.key = data && data.key;//节点key属性，节点标志，用以优化
-        this.componentOptions = componentOptions;//组件options选项
-        this.componentInstance = undefined;//对应vue组件的实例
-        this.parent = undefined;//节点的父节点
-        this.raw = false;//是原生html还是普通文本，innerHTML的时候是true，textContent是false
-        this.isStatic = false; //是否静态结点
-        this.isRootInsert = false;//是否根节点插入
-        this.isComment = false; // 是否注释结点 
-        this.isCloned = false;// 是否克隆结点
-        this.isOnce = false; //是否有v-once指令
-        this.asyncFactory = asyncFactory;
-        this.asyncMeta = undefined;
-        this.isAsyncFolder = false;
-    }
-}
+
 
 function createEmptyVNode(text='') {
     const node = new VNode();

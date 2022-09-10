@@ -1,5 +1,5 @@
-import { TriggerOpTypes } from '../../v3'
-import { def } from '../util/index'
+
+import { def } from '../util/index';
 
 const arrProto = Array.prototype;
 export const arrayMethods = Object.create(arrProto);
@@ -32,7 +32,7 @@ methodsToPatch.forEach((method, index) => {
         if(inserted) {
             ob.observeArray(inserted);
         }
-        
+        // ob.dep.notify()
         if (__DEV__) {
             ob.dep.notify({
                 type: TriggerOpTypes.ARRAY_MUTATION,

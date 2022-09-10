@@ -36,7 +36,7 @@ import {
     // so that we get proper render context inside it.
     // args order: tag, data, children, normalizationType, alwaysNormalize
     // internal version is used by render functions compiled from templates
-    // *@ts-expect-error
+    // @ts-expect-error
     vm._c = (a, b, c, d) => createElement(vm, a, b, c, d, false)
     // normalization is always applied for the public version, used in
     // user-written render functions.

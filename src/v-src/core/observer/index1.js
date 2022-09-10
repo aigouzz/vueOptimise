@@ -1,5 +1,5 @@
 import {hasOwn, hasProto, isObject, protoAugment, copyAugment} from './api';
-import {arrMethods, arrKeys, methodsToPatch} from './array'; 
+import {arrayMethods, arrKeys, methodsToPatch} from './array'; 
 import {VNode} from './VNode';
 
 class myObserver{
@@ -9,7 +9,7 @@ class myObserver{
         this.dep = new Dep();
         if(Array.isArray(value)) {
             const augment = hasProto ? protoAugment : copyAugment;
-            augment(value, arrMethods, arrKeys);
+            augment(value, arrayMethods, arrKeys);
             this.observeArray(value);
         } else {
             this.walk(value);
@@ -51,7 +51,7 @@ function observe(value, asRootData) {
  * @param {any} key 
  * @param {any} val 
  */
-function defs(obj, key, val) {
+export function defs(obj, key, val) {
     Object.defineProperty(obj, key, {
         value: val,
     });

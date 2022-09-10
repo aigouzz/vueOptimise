@@ -1,10 +1,10 @@
-import type VNode from 'core/vdom/vnode'
-import type Watcher from 'core/observer/watcher'
+import type VNode from '../core/vdom/vnode'
+import type Watcher from '../core/observer/watcher'
 import { ComponentOptions } from './options'
-import { SetupContext } from 'v3/apiSetup'
+import { SetupContext } from '../v3/apiSetup'
 import { ScopedSlotsData, VNodeChildren, VNodeData } from './vnode'
 import { GlobalAPI } from './global-api'
-import { EffectScope } from 'v3/reactivity/effectScope'
+import { EffectScope } from '../v3/reactivity/effectScope'
 
 // TODO this should be using the same as /component/
 
