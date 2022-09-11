@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import EventEmit from './api/emit'
+import EventEmit from './api/emit';
+
 
 createApp(App).mount('#app');
 
